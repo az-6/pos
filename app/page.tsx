@@ -1,23 +1,28 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import CashierInterface from '@/components/pos/cashier-interface'
-import InventoryManagement from '@/components/pos/inventory-management'
-import DigitalCashbook from '@/components/pos/digital-cashbook'
-import Dashboard from '@/components/pos/dashboard'
-import { POSProvider } from '@/components/pos/pos-context'
-import { Barcode as BarCode3, Package, DollarSign, TrendingUp } from 'lucide-react'
+import { useState, useEffect } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import CashierInterface from "@/components/pos/cashier-interface";
+import InventoryManagement from "@/components/pos/inventory-management";
+import DigitalCashbook from "@/components/pos/digital-cashbook";
+import Dashboard from "@/components/pos/dashboard";
+import { POSProvider } from "@/components/pos/pos-context-firebase";
+import {
+  Barcode as BarCode3,
+  Package,
+  DollarSign,
+  TrendingUp,
+} from "lucide-react";
 
 export default function Home() {
-  const [mounted, setMounted] = useState(false)
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   if (!mounted) {
-    return null
+    return null;
   }
 
   return (
@@ -25,8 +30,12 @@ export default function Home() {
       <div className="min-h-screen bg-background">
         <header className="border-b bg-card">
           <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-            <h1 className="text-2xl font-bold text-foreground">Point of Sale System</h1>
-            <p className="text-sm text-muted-foreground">Sistem Manajemen Penjualan Terpadu</p>
+            <h1 className="text-2xl font-bold text-foreground">
+              Point of Sale System
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Sistem Manajemen Penjualan Terpadu
+            </p>
           </div>
         </header>
 
@@ -37,7 +46,10 @@ export default function Home() {
                 <BarCode3 className="h-4 w-4" />
                 <span className="hidden sm:inline">Cashier</span>
               </TabsTrigger>
-              <TabsTrigger value="inventory" className="flex items-center gap-2">
+              <TabsTrigger
+                value="inventory"
+                className="flex items-center gap-2"
+              >
                 <Package className="h-4 w-4" />
                 <span className="hidden sm:inline">Inventory</span>
               </TabsTrigger>
@@ -45,7 +57,10 @@ export default function Home() {
                 <DollarSign className="h-4 w-4" />
                 <span className="hidden sm:inline">Cashbook</span>
               </TabsTrigger>
-              <TabsTrigger value="dashboard" className="flex items-center gap-2">
+              <TabsTrigger
+                value="dashboard"
+                className="flex items-center gap-2"
+              >
                 <TrendingUp className="h-4 w-4" />
                 <span className="hidden sm:inline">Dashboard</span>
               </TabsTrigger>
@@ -70,5 +85,5 @@ export default function Home() {
         </main>
       </div>
     </POSProvider>
-  )
+  );
 }

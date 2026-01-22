@@ -1,38 +1,46 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { usePOS, Customer, PaymentHistory } from './pos-context'
-import { Trash2, MessageCircle, Plus, TrendingDown } from 'lucide-react'
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { usePOS, Customer, PaymentHistory } from "./pos-context-firebase";
+import { Trash2, MessageCircle, Plus, TrendingDown } from "lucide-react";
 
 export default function DigitalCashbook() {
-  const { customers, paymentHistory, addCustomer, updateCustomer, addPayment } = usePOS()
-  const [searchTerm, setSearchTerm] = useState('')
-  const [showAddCustomer, setShowAddCustomer] = useState(false)
-  const [showAddPayment, setShowAddPayment] = useState<string | null>(null)
+  const { customers, paymentHistory, addCustomer, updateCustomer, addPayment } =
+    usePOS();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showAddCustomer, setShowAddCustomer] = useState(false);
+  const [showAddPayment, setShowAddPayment] = useState<string | null>(null);
   const [newCustomerData, setNewCustomerData] = useState({
-    name: '',
-    phone: '',
-    notes: '',
-  })
+    name: "",
+    phone: "",
+    notes: "",
+  });
   const [paymentData, setPaymentData] = useState({
     amount: 0,
-    notes: '',
-  })
+    notes: "",
+  });
 
   const filteredCustomers = customers.filter(
     (c) =>
       c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.phone.includes(searchTerm)
-  )
+      c.phone.includes(searchTerm),
+  );
 
-  const customersWithDebt = filteredCustomers.filter((c) => c.debt > 0)
+  const customersWithDebt = filteredCustomers.filter((c) => c.debt > 0);
 
   const handleAddCustomer = () => {
     if (newCustomerData.name && newCustomerData.phone) {
@@ -43,63 +51,68 @@ export default function DigitalCashbook() {
         debt: 0,
         lastTransaction: new Date().toISOString(),
         notes: newCustomerData.notes,
-      }
-      addCustomer(customer)
-      setNewCustomerData({ name: '', phone: '', notes: '' })
-      setShowAddCustomer(false)
-      alert('Pelanggan berhasil ditambahkan')
+      };
+      addCustomer(customer);
+      setNewCustomerData({ name: "", phone: "", notes: "" });
+      setShowAddCustomer(false);
+      alert("Pelanggan berhasil ditambahkan");
     }
-  }
+  };
 
   const handleAddDebt = (customerId: string) => {
     if (paymentData.amount > 0) {
       const payment: PaymentHistory = {
-        id: '',
+        id: "",
         customerId,
         amount: paymentData.amount,
-        type: 'debt',
+        type: "debt",
         timestamp: new Date().toISOString(),
         notes: paymentData.notes,
-      }
-      addPayment(payment)
-      setPaymentData({ amount: 0, notes: '' })
-      setShowAddPayment(null)
-      alert('Utang berhasil dicatat')
+      };
+      addPayment(payment);
+      setPaymentData({ amount: 0, notes: "" });
+      setShowAddPayment(null);
+      alert("Utang berhasil dicatat");
     }
-  }
+  };
 
   const handlePayDebt = (customerId: string) => {
     if (paymentData.amount > 0) {
       const payment: PaymentHistory = {
-        id: '',
+        id: "",
         customerId,
         amount: paymentData.amount,
-        type: 'payment',
+        type: "payment",
         timestamp: new Date().toISOString(),
         notes: paymentData.notes,
-      }
-      addPayment(payment)
-      setPaymentData({ amount: 0, notes: '' })
-      setShowAddPayment(null)
-      alert('Pembayaran berhasil dicatat')
+      };
+      addPayment(payment);
+      setPaymentData({ amount: 0, notes: "" });
+      setShowAddPayment(null);
+      alert("Pembayaran berhasil dicatat");
     }
-  }
+  };
 
   const handleSendToWhatsApp = (customer: Customer) => {
     const debtText = encodeURIComponent(
       `Halo ${customer.name},\n\n` +
-      `Tagihan Anda: Rp ${customer.debt.toLocaleString('id-ID')}\n` +
-      `Mohon segera dilunasi.\n\n` +
-      `Terima kasih.`
-    )
-    window.open(`https://wa.me/${customer.phone.replace(/\D/g, '')}?text=${debtText}`)
-  }
+        `Tagihan Anda: Rp ${customer.debt.toLocaleString("id-ID")}\n` +
+        `Mohon segera dilunasi.\n\n` +
+        `Terima kasih.`,
+    );
+    window.open(
+      `https://wa.me/${customer.phone.replace(/\D/g, "")}?text=${debtText}`,
+    );
+  };
 
   const getCustomerPaymentHistory = (customerId: string) => {
-    return paymentHistory.filter((p) => p.customerId === customerId).slice().reverse()
-  }
+    return paymentHistory
+      .filter((p) => p.customerId === customerId)
+      .slice()
+      .reverse();
+  };
 
-  const totalDebt = customersWithDebt.reduce((sum, c) => sum + c.debt, 0)
+  const totalDebt = customersWithDebt.reduce((sum, c) => sum + c.debt, 0);
 
   return (
     <Tabs defaultValue="overview" className="space-y-6">
@@ -113,31 +126,40 @@ export default function DigitalCashbook() {
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Manajemen Pelanggan</CardTitle>
             <Button onClick={() => setShowAddCustomer(!showAddCustomer)}>
-              {showAddCustomer ? 'Batal' : 'Tambah Pelanggan'}
+              {showAddCustomer ? "Batal" : "Tambah Pelanggan"}
             </Button>
           </CardHeader>
           <CardContent className="space-y-4">
             {showAddCustomer && (
               <div className="space-y-3 p-4 border rounded-lg bg-muted/50">
                 <Input
-                  placeholder="Nama pelanggan"
+                  placeholder="Nama Pelanggan"
                   value={newCustomerData.name}
                   onChange={(e) =>
-                    setNewCustomerData({ ...newCustomerData, name: e.target.value })
+                    setNewCustomerData({
+                      ...newCustomerData,
+                      name: e.target.value,
+                    })
                   }
                 />
                 <Input
-                  placeholder="Nomor WhatsApp (6281234567890)"
+                  placeholder="Nomor WhatsApp"
                   value={newCustomerData.phone}
                   onChange={(e) =>
-                    setNewCustomerData({ ...newCustomerData, phone: e.target.value })
+                    setNewCustomerData({
+                      ...newCustomerData,
+                      phone: e.target.value,
+                    })
                   }
                 />
                 <Input
-                  placeholder="Catatan (opsional)"
+                  placeholder="Catatan"
                   value={newCustomerData.notes}
                   onChange={(e) =>
-                    setNewCustomerData({ ...newCustomerData, notes: e.target.value })
+                    setNewCustomerData({
+                      ...newCustomerData,
+                      notes: e.target.value,
+                    })
                   }
                 />
                 <Button onClick={handleAddCustomer} className="w-full">
@@ -166,21 +188,23 @@ export default function DigitalCashbook() {
                 <TableBody>
                   {filteredCustomers.map((customer) => (
                     <TableRow key={customer.id}>
-                      <TableCell className="font-medium">{customer.name}</TableCell>
+                      <TableCell className="font-medium">
+                        {customer.name}
+                      </TableCell>
                       <TableCell>{customer.phone}</TableCell>
                       <TableCell>
                         <span
                           className={`font-semibold ${
                             customer.debt > 0
-                              ? 'text-destructive'
-                              : 'text-green-600'
+                              ? "text-destructive"
+                              : "text-green-600"
                           }`}
                         >
-                          Rp {customer.debt.toLocaleString('id-ID')}
+                          Rp {customer.debt.toLocaleString("id-ID")}
                         </span>
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">
-                        {customer.notes || '-'}
+                        {customer.notes || "-"}
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">
@@ -237,17 +261,17 @@ export default function DigitalCashbook() {
               <div>
                 <Label>Utang saat ini:</Label>
                 <p className="text-2xl font-bold text-destructive">
-                  Rp{' '}
+                  Rp{" "}
                   {customers
                     .find((c) => c.id === showAddPayment)
-                    ?.debt.toLocaleString('id-ID')}
+                    ?.debt.toLocaleString("id-ID")}
                 </p>
               </div>
 
               <Input
                 type="number"
                 placeholder="Jumlah (Rp)"
-                value={paymentData.amount}
+                value={paymentData.amount || ""}
                 onChange={(e) =>
                   setPaymentData({
                     ...paymentData,
@@ -289,25 +313,24 @@ export default function DigitalCashbook() {
                     <div
                       key={payment.id}
                       className={`p-2 rounded-lg text-sm ${
-                        payment.type === 'debt'
-                          ? 'bg-red-50 text-red-900'
-                          : 'bg-green-50 text-green-900'
+                        payment.type === "debt"
+                          ? "bg-red-50 text-red-900"
+                          : "bg-green-50 text-green-900"
                       }`}
                     >
                       <div className="flex justify-between">
                         <span className="font-medium">
-                          {payment.type === 'debt' ? 'Utang' : 'Bayar'}:
+                          {payment.type === "debt" ? "Utang" : "Bayar"}:
                         </span>
-                        <span>
-                          Rp{' '}
-                          {payment.amount.toLocaleString('id-ID')}
-                        </span>
+                        <span>Rp {payment.amount.toLocaleString("id-ID")}</span>
                       </div>
                       <div className="text-xs opacity-75">
                         {new Date(payment.timestamp).toLocaleDateString(
-                          'id-ID'
-                        )}{' '}
-                        {new Date(payment.timestamp).toLocaleTimeString('id-ID')}
+                          "id-ID",
+                        )}{" "}
+                        {new Date(payment.timestamp).toLocaleTimeString(
+                          "id-ID",
+                        )}
                       </div>
                     </div>
                   ))}
@@ -323,14 +346,15 @@ export default function DigitalCashbook() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingDown className="h-5 w-5 text-orange-500" />
-              Total Piutang: Rp{' '}
-              {totalDebt.toLocaleString('id-ID')}
+              Total Piutang: Rp {totalDebt.toLocaleString("id-ID")}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {customersWithDebt.length === 0 ? (
               <Alert>
-                <AlertDescription>Tidak ada pelanggan yang berutang</AlertDescription>
+                <AlertDescription>
+                  Tidak ada pelanggan yang berutang
+                </AlertDescription>
               </Alert>
             ) : (
               <div className="space-y-3">
@@ -347,7 +371,7 @@ export default function DigitalCashbook() {
                     </div>
                     <div className="text-right space-y-2">
                       <p className="text-xl font-bold text-destructive">
-                        Rp {customer.debt.toLocaleString('id-ID')}
+                        Rp {customer.debt.toLocaleString("id-ID")}
                       </p>
                       <Button
                         size="sm"
@@ -367,5 +391,5 @@ export default function DigitalCashbook() {
         </Card>
       </TabsContent>
     </Tabs>
-  )
+  );
 }
